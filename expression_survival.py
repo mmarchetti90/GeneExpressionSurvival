@@ -126,7 +126,7 @@ class survival_analysis:
             samples_filter = (variable <= variable_threshold)
         
         # Fit KM
-        timeline = np.linspace(0, 5, 51)
+        timeline = np.linspace(0, max_t, 51)
         kmf_low = KaplanMeierFitter().fit(time[samples_filter], event_observed=events[samples_filter], timeline=timeline, label='Low expression')
         kmf_high = KaplanMeierFitter().fit(time[~samples_filter], event_observed=events[~samples_filter], timeline=timeline, label='High expression')
         
@@ -136,7 +136,7 @@ class survival_analysis:
         # Plot high/low populations' survival
         if logrank_p < 0.05 or survival_at_endpoint_pval < 0.05:
             
-            title = f'{variable_name}\nlogrank p-value = {logrank_p:.3E}\n5y survival p-value = {survival_at_endpoint_pval:.3E}'
+            title = f'{variable_name}\nlogrank p-value = {logrank_p:.3E}\n{max_t}y survival p-value = {survival_at_endpoint_pval:.3E}'
             plt.figure(figsize=(5, 3.5))
             ax = plt.subplot(111)
             ax = kmf_low.plot_survival_function(ax=ax, color='blue')
