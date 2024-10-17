@@ -44,13 +44,17 @@ class survival_analysis:
         ### Merge and create filter for pvalues
         results = univariate_regression.merge(km_results, left_index=True, right_index=True)
         variable_filter = [index for index,values in results.iterrows() if values.univariate_p < self.pvalue_cutoff or values.logrank_pval < self.pvalue_cutoff]
-    
-        ### Multivariable Cox's regression for variables passing either test above
-        multivariable_regression = self.cox_regression(self.survival_data.loc[:, ['years_survival', 'vital_status'] + variable_filter])
-        multivariable_regression.columns = [f'multivariable_{col}' for col in multivariable_regression.columns]
+
+        if len(variable_filter):
+            
+            ### Multivariable Cox's regression for variables passing either test above
+            multivariable_regression = self.cox_regression(self.survival_data.loc[:, ['years_survival', 'vital_status'] + variable_filter])
+            multivariable_regression.columns = [f'multivariable_{col}' for col in multivariable_regression.columns]
         
-        ### Merge and save to file
-        results = results.merge(multivariable_regression, left_index=True, right_index=True, how='outer')
+            ### Merge
+            results = results.merge(multivariable_regression, left_index=True, right_index=True, how='outer')
+
+        ### Save to file
         results.to_csv(f'{self.output_prefix}_survival_analysis.tsv', sep='\t', index=True, header=True)
         
         return results
